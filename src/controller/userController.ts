@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { userValidation } from "../request/userRequest";
+import { ValidationError } from "yup";
+import { error } from "console";
 
 const prisma = new PrismaClient();
 
@@ -15,7 +18,7 @@ class userController {
       },
     });
     if (findEmail) {
-      res.status(500).send({ msg: "this email already exsits" });
+      res.json({status : 500 , msg: "this email already exsits" });
       return;
     }
 
@@ -23,12 +26,11 @@ class userController {
       where: { username: username },
     });
     if (findUsername) {
-      return res.status(500).send({ msg: "this username already exsits" });
+      return  res.json({status : 500 , msg: "this username already exsits" });
     }
 
     try {
       const myHashPass = await bcrypt.hash(password, 10);
-
       const add = await prisma.user.create({
         data: {
           username,
@@ -44,13 +46,15 @@ class userController {
         email: add.email,
         image: add.image,
       };
+      
 
       const token = jwt.sign({ id: add.id, username: add.username }, "1234");
-      res.json({ response, token });
+      res.json({status : 200 , data : {response, token} });
     } catch (error) {
       res.json(error);
       console.log(error);
     }
+    
   };
 
   static getUser = async (req: Request, res: Response) => {
@@ -94,7 +98,7 @@ class userController {
 
   static updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { username , email } = req.body;
+    const { username, email } = req.body;
     try {
       const update = await prisma.user.update({
         where: {

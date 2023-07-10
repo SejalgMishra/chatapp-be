@@ -63,7 +63,7 @@ export const UploadSingleFile =
 
         next();
       } catch (error) {
-        console.log(error);
+        
         return res.send({
           status: false,
           error,
@@ -81,8 +81,5 @@ export const UploadSingleFile =
 const configuredMulter = (type: UPLOAD_TYPES) => {
   return multer({
     dest: "public",
-    limits: {
-      fileSize: 1024 * 1024 * 5,
-    },
   });
 };
