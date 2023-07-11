@@ -14,6 +14,11 @@ router.post(
 
 router.get("/user", userController.getUser);
 
+
+
+router.post("/login", userController.User);
+
+
 router.get("/serch" , userController.serchUser);
 
 

@@ -4,6 +4,8 @@ import cors from "cors";
 
 import bodyParser from "body-parser";
 import userRoute from "./routes/userRoute";
+import msgRoute from "./routes/messageRoute";
+
 
 
 dotenv.config();
@@ -19,6 +21,8 @@ app.use(express.static("public"));
 
 
 app.use("/", userRoute);
+app.use("/", msgRoute);
+
 
 
 app.listen(port, () => {

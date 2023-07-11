@@ -45,12 +45,8 @@ export const UploadSingleFile =
             error?.message || "Something went wrong while uploading asset",
         });
       }
-      // const productId = res
-      // console.log(res);
 
       let file: any = req.file;
-
-      // const productId = file.url
 
       try {
         // Upload the file to Cloudinary
@@ -63,7 +59,6 @@ export const UploadSingleFile =
 
         next();
       } catch (error) {
-        
         return res.send({
           status: false,
           error,
