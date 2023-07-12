@@ -9,8 +9,10 @@ router.post("/message/:userId", messageController.createMessage);
 
 router.get("/message/:reciver", messageController.reciveMessage);
 
-router.get("/recent", messageController.recentChat);
+router.get("/recent/:userId", messageController.recentChat);
 
 router.delete("/recent", messageController.deletechat);
+
+router.get('/message/:receiverId', messageController.getMessagesByUserIdAndReceiverId);
 
 export default router;

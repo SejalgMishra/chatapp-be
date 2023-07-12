@@ -13,23 +13,6 @@ class userController {
   static addUser = async (req: Request, res: Response) => {
     const { username, password, email, image } = req.body;
 
-    // const findEmail = await prisma.user.findFirst({
-    //   where: {
-    //     email: email,
-    //   },
-    // });
-    // if (findEmail) {
-    //   res.json({status : 500 , msg: "this email already exsits" });
-    //   return;
-    // }
-
-    // const findUsername = await prisma.user.findFirst({
-    //   where: { username: username },
-    // });
-    // if (findUsername) {
-    //   return  res.json({status : 500 , msg: "this username already exsits" });
-    // }
-
     try {
       const myHashPass = await bcrypt.hash(password, 10);
       const add = await prisma.user.create({
@@ -56,21 +39,28 @@ class userController {
     }
   };
 
-  static User = async (req: Request, res: Response) => {
-    const { username } = req.body;
+  static CheackUser = async (req: Request, res: Response) => {
+    const { username , password } = req.body;
     try {
       const get: any = await prisma.user.findFirst({
         where: {
-          username,
+          username
         },
       });
+      if(!get){
+        return res.status(500).send("username not found")
+      }
+      const myPass = await bcrypt.compare( password, get?.password )
+      if(!myPass){
+        return res.status(500).send("password not correct")
+      }
       const token = jwt.sign(
         { id: get.id, role: get.username },
         "1234" //secret
       );
 
       get.token = token;
-      res.json({ get });
+      res.json( get );
     } catch (error) {
       res.json(error);
       console.log(error);
@@ -135,6 +125,9 @@ class userController {
       console.log(error);
     }
   };
+
+ 
+
 }
 
 export default userController;

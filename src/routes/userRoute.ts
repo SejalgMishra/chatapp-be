@@ -16,7 +16,7 @@ router.get("/user", userController.getUser);
 
 
 
-router.post("/login", userController.User);
+router.post("/login", userController.CheackUser);
 
 
 router.get("/serch" , userController.serchUser);
