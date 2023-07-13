@@ -41,47 +41,48 @@ class MessageController {
   };
 
   static recentChat = async (req: Request, res: Response) => {
-    const { userId } = req.params
+    const { userId } = req.params;
     const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+    
     try {
       const recentChats: any = await prisma.message.findMany({
         where: {
-          userId: objectIdRegex.test(userId) ? userId : undefined,
+          OR: [
+            { userId: objectIdRegex.test(userId) ? userId : undefined },
+            { receiver: objectIdRegex.test(userId) ? userId : undefined },
+          ],
         },
         orderBy: { createdAt: "desc" },
-        take: 10,
         include: {
           receiverData: true,
         },
       });
-
-      const receiverIds = new Set(); // Create a Set to store unique receiverIds
-
-      // Filter recentChats and remove duplicates
-      const filteredChats = recentChats.filter((chat: any) => {
-        if (chat?.receiverData?.id) {
-          if (receiverIds.has(chat.receiverData.id)) {
-            return false; // Duplicate receiverId, skip this chat
-          } else {
-            receiverIds.add(chat.receiverData.id); // Add receiverId to the Set
-            return true; // Unique receiverId, include this chat
-          }
+  
+      const receiverIds = new Set();
+      const filteredChats = [];
+  
+      for (const chat of recentChats) {
+        const receiverId = chat?.receiverData?.id;
+  
+        if (receiverId && !receiverIds.has(receiverId)) {
+          filteredChats.push(chat);
+          receiverIds.add(receiverId);
         }
-        return true; // Include chats where receiverData.id is undefined
-      });
-
-      const data = filteredChats.reduce((p: any, c: { receiver: any }) => {
+      }
+  
+      const data = filteredChats.reduce((p: any, c: any) => {
         const { receiver } = c;
         p[receiver] = p[receiver] ?? [];
         p[receiver].push(c);
         return p;
       }, {});
-
-      res.send(filteredChats);
+  
+      res.send({filteredChats , receiverIds});
     } catch (error) {
       console.log(error);
     }
   };
+  
 
   static deletechat = async (_req: Request, _res: Response) => {
     try {
@@ -95,14 +96,15 @@ class MessageController {
     req: Request,
     res: Response
   ) => {
+    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
     try {
       const { receiver } = req.params;
       const { userId } = req.query as any;
 
       const messages = await prisma.message.findMany({
         where: {
-          userId,
-          receiver,
+          receiver: objectIdRegex.test(receiver) ? receiver : undefined,
+          userId: objectIdRegex.test(userId) ? userId : undefined,
         },
       });
 
