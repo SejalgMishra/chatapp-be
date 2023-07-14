@@ -18,7 +18,8 @@ model User {
   image            String?   @default("https://res.cloudinary.com/devatchannel/image/upload/v1602752402/avatar/avatar_cugq40.png")
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
-  group            Group[]   @relation("userOfGroup")
+  group            Group[]   @relation("userOfGroup", fields: [groupId], references: [id])
+  groupId          String[]  @db.ObjectId
 }
 
 model Message {
@@ -29,17 +30,20 @@ model Message {
   sender       User     @relation("SentMessages", fields: [userId], references: [id])
   userId       String   @db.ObjectId
   isRead       Boolean  @default(false)
-  receiver     String?  @db.ObjectId
+  receiver     String?  @db.ObjectId 
   receiverData User?    @relation("ReceivedMessages", fields: [receiver], references: [id])
   createdAt    DateTime @default(now())
+  group        Group?   @relation("GroupMessages", fields: [groupId], references: [id])
+  groupId      String?  @db.ObjectId
 }
 
 model Group {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String?
-  descreption String?
-  users       User[]  @relation("userOfGroup", fields: [userId], references: [id])
-  userId      String  @db.ObjectId
+  description String?
+  users       User[]    @relation("userOfGroup", fields: [userId], references: [id])
+  userId      String[]  @db.ObjectId
+  messages    Message[] @relation("GroupMessages")
 }
 
 enum type {

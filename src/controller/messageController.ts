@@ -26,6 +26,7 @@ class MessageController {
     const userId = req.body.id;
 
     const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+
     try {
       const getMsg = await prisma.message.findMany({
         where: {
