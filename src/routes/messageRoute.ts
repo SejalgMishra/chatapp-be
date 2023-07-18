@@ -13,6 +13,8 @@ router.get("/recent/:userId", messageController.recentChat);
 
 router.delete("/recent", messageController.deletechat);
 
+router.delete("/clearChat/:receiver",authMiddleware , messageController.clearChat);
+
 router.get('/message/:receiverId', messageController.getMessagesByUserIdAndReceiverId);
 
 export default router;

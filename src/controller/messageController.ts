@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { log } from "console";
 
 const prisma = new PrismaClient();
 
@@ -44,7 +45,7 @@ class MessageController {
   static recentChat = async (req: Request, res: Response) => {
     const { userId } = req.params;
     const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-    
+
     try {
       const recentChats: any = await prisma.message.findMany({
         where: {
@@ -58,36 +59,36 @@ class MessageController {
           receiverData: true,
         },
       });
-  
+
       const receiverIds = new Set();
       const filteredChats = [];
-  
+
       for (const chat of recentChats) {
         const receiverId = chat?.receiverData?.id;
-  
+
         if (receiverId && !receiverIds.has(receiverId)) {
           filteredChats.push(chat);
           receiverIds.add(receiverId);
         }
       }
-  
+
       const data = filteredChats.reduce((p: any, c: any) => {
         const { receiver } = c;
         p[receiver] = p[receiver] ?? [];
         p[receiver].push(c);
         return p;
       }, {});
-  
-      res.send({filteredChats , receiverIds});
+
+      res.send({ filteredChats, receiverIds });
     } catch (error) {
       console.log(error);
     }
   };
-  
 
-  static deletechat = async (_req: Request, _res: Response) => {
+  static deletechat = async (req: Request, res: Response) => {
     try {
       const recentChats = await prisma.message.deleteMany();
+      res.send("deletd");
     } catch (error) {
       console.log(error);
     }
@@ -110,6 +111,30 @@ class MessageController {
       });
 
       res.json(messages);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+  static clearChat = async (req: Request, res: Response) => {
+    const userId = req.body.id;
+    console.log(userId);
+    
+    const { receiver } = req.params;
+    console.log(receiver);
+    
+    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+    try {
+      const deleteMessage = await prisma.message.deleteMany({
+        where: {
+          receiver: objectIdRegex.test(receiver) ? receiver : undefined,
+          userId: objectIdRegex.test(userId) ? userId : undefined,
+        },
+      });
+      res.send("deleted msgs")
+      console.log(deleteMessage);
+      
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });

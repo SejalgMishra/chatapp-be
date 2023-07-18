@@ -125,9 +125,6 @@ class userController {
       console.log(error);
     }
   };
-
- 
-
 }
 
 export default userController;
