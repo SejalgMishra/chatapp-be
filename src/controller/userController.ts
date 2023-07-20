@@ -6,6 +6,9 @@ import { userValidation } from "../request/userRequest";
 import { ValidationError } from "yup";
 import { error } from "console";
 import { setFlagsFromString } from "v8";
+const fs = require('fs');
+const path = require('path');
+
 
 const prisma = new PrismaClient();
 

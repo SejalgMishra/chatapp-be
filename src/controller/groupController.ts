@@ -54,7 +54,7 @@ class GroupController {
         include: {
           users: true,
         },
-      });
+      }); 
       res.send(details);
     } catch (error) {
       console.log(error);

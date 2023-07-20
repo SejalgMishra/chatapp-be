@@ -128,11 +128,20 @@ class MessageController {
     try {
       const deleteMessage = await prisma.message.deleteMany({
         where: {
-          receiver: objectIdRegex.test(receiver) ? receiver : undefined,
-          userId: objectIdRegex.test(userId) ? userId : undefined,
+          OR: [
+            {
+              receiver: objectIdRegex.test(receiver) ? receiver : undefined ,
+              userId: objectIdRegex.test(userId) ? userId : undefined,
+            },
+            {
+              receiver: objectIdRegex.test(userId) ? userId : undefined ,
+              userId: objectIdRegex.test(receiver) ? receiver : undefined,
+            }
+          ]
+         
         },
       });
-      res.send("deleted msgs")
+      res.send(`${userId} deleted the chat`)
       console.log(deleteMessage);
       
     } catch (error) {
@@ -140,6 +149,32 @@ class MessageController {
       res.status(500).json({ error: "Internal server error" });
     }
   };
+
+// static clearChat = async (req: Request, res: Response) => {
+//   const userId = req.body.id;
+//   const { receiver } = req.params;
+
+//   const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+//   try {
+//     const updatedMessages = await prisma.message.updateMany({
+//       where: {
+//         userId: objectIdRegex.test(userId) ? userId : undefined,
+//         receiver: objectIdRegex.test(receiver) ? receiver : undefined,
+//         deleted: false, // Only update messages that are not already deleted
+//       },
+//       data: {
+//         deleted: true, // Mark the messages as deleted
+//       },
+//     });
+
+//     res.send(`${userId} cleared the chat with ${receiver}`);
+//     console.log(updatedMessages);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
 }
 
 export default MessageController;

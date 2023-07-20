@@ -14,7 +14,11 @@ router.post(
 
 router.get("/user", userController.getUser);
 
-
+router.patch(
+  "/update/:id",
+  UploadSingleFile(UPLOAD_TYPES.IMAGE, "image"),
+  userController.updateUser
+);
 
 router.post("/login", userController.CheackUser);
 
